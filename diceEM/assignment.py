@@ -105,22 +105,19 @@ def dice_posteror(sample_draw: List[int],
     num_dice = len(dice)  
     log_likelihoods = np.zeros(num_dice)
 
-    # Calculate the likelihood for each die type given the sample draw
     for die_index, die in enumerate(dice):
         face_probs = die.face_probs
-        # Compute the log likelihood to avoid underflow for small probabilities
         log_likelihood = 0
         for face_index, count in enumerate(sample_draw):
-            # Each face in sample_draw contributes to the likelihood
+            # compute the likelihood
             log_likelihood += count * np.log(safe_exponentiate(face_probs[face_index], count))
         log_likelihoods[die_index] = log_likelihood + np.log(die_type_priors[die_index])
 
-    # Convert log-likelihoods to probabilities (using exponentiation)
-    max_log_likelihood = np.max(log_likelihoods)  # For numerical stability
-    log_likelihoods -= max_log_likelihood  # Normalize to prevent large values
+    max_log_likelihood = np.max(log_likelihoods)  
+    log_likelihoods -= max_log_likelihood  # normalize to prevent large values
     likelihoods = np.exp(log_likelihoods)
 
-    # Normalize the posterior probabilities
+    # scale the posterior probabilities to sum to 1
     posteriors = likelihoods / likelihoods.sum()
 
     return posteriors.tolist()
